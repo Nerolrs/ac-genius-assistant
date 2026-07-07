@@ -1,9 +1,15 @@
 import os
 from typing import Optional, List, Dict
-from src.asr_engine import SenseVoiceASR
 from src.vector_store import VectorStore
 from src.thermal_knowledge import THERMAL_KNOWLEDGE_BASE
 import time
+
+try:
+    from src.asr_engine import SenseVoiceASR
+    ASR_AVAILABLE = True
+except ImportError:
+    ASR_AVAILABLE = False
+    print("[WARN] ASR模块不可用，语音功能将被禁用")
 
 
 class ACGeniusAssistant:
@@ -12,8 +18,11 @@ class ACGeniusAssistant:
     def __init__(self):
         print("🌟 初始化空调精灵助手...")
 
-        # 初始化语音识别
-        self.asr = SenseVoiceASR()
+        # 初始化语音识别（可选）
+        if ASR_AVAILABLE:
+            self.asr = SenseVoiceASR()
+        else:
+            self.asr = None
 
         # 初始化向量库
         self.vector_store = VectorStore()
@@ -30,6 +39,13 @@ class ACGeniusAssistant:
 
     def process_voice_query(self, audio_data, sample_rate: int = 16000) -> Dict:
         """处理语音查询"""
+        if not self.asr:
+            return {
+                "success": False,
+                "error": "语音识别模块未安装，请安装 funasr 库",
+                "time_cost": 0
+            }
+
         start_time = time.time()
 
         # 1. 语音识别

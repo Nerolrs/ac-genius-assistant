@@ -41,7 +41,7 @@ models/
 modelscope/
 
 # Data
-data/chroma_db/
+data/
 *.wav
 *.mp3
 *.pcm
